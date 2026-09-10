@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Your Sign | Signco Fabrications | Elk Grove, IL</title>
+  <meta name="description" content="Design your own custom industrial sign online — pick text, size in feet or inches, color, and material, then send it straight into a quote request." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="sticky top-0 z-50 bg-navy shadow-lg">
+    <div class="container-x flex h-20 items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3" aria-label="Signco Fabrications home">
+        <img src="images/logo.svg" alt="Signco Fabrications" class="h-12 w-auto" />
+      </a>
+      <nav class="hidden lg:flex items-center gap-6" aria-label="Primary">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="services.html" class="nav-link">Services</a>
+        <a href="portfolio.html" class="nav-link">Portfolio</a>
+        <a href="process.html" class="nav-link">Process</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+      <div class="hidden lg:flex items-center gap-3 ml-6">
+        <a href="tel:+17082431717" class="font-display text-lg font-semibold text-white hover:text-sky whitespace-nowrap">708-243-1717</a>
+        <a href="design.html" class="btn-accent">Design Now</a>
+        <a href="contact.html" class="btn-primary">Get a Quote</a>
+      </div>
+      <button id="nav-toggle" type="button" class="lg:hidden text-white p-2 -mr-2 min-h-[44px] min-w-[44px]" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+        <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" /></svg>
+        <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <nav id="mobile-nav" class="lg:hidden hidden border-t border-white/10 bg-navy" aria-label="Mobile">
+      <div class="container-x flex flex-col gap-1 py-4">
+        <a href="index.html" class="nav-link py-2">Home</a>
+        <a href="services.html" class="nav-link py-2">Services</a>
+        <a href="portfolio.html" class="nav-link py-2">Portfolio</a>
+        <a href="process.html" class="nav-link py-2">Process</a>
+        <a href="about.html" class="nav-link py-2">About</a>
+        <a href="contact.html" class="nav-link py-2">Contact</a>
+        <a href="tel:+17082431717" class="nav-link py-2">708-243-1717</a>
+        <a href="design.html" class="btn-accent mt-3 justify-center">Design Now</a>
+        <a href="contact.html" class="btn-primary mt-3 justify-center">Get a Quote</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="relative bg-ink text-white">
+      <div class="absolute inset-0 bg-[linear-gradient(180deg,#0b2a4a_0%,#0a0a0a_80%)]"></div>
+      <div class="container-x relative py-16">
+        <p class="eyebrow text-sky">Design Now</p>
+        <h1 class="mt-4 text-5xl md:text-6xl font-bold">Design Your Sign</h1>
+        <p class="mt-4 max-w-2xl text-lg text-white/80 font-body normal-case tracking-normal">
+          Type your text, pick a size in feet or inches, choose a color and material, then send your design straight into a quote request. This is a visual planning tool, not final engineering artwork &mdash; we'll finalize exact specs with you before fabrication.
+        </p>
+      </div>
+    </section>
+
+    <section class="container-x py-12">
+      <div class="grid gap-8 lg:grid-cols-[380px,1fr]">
+
+        <!-- CONTROLS -->
+        <div class="card space-y-6 lg:sticky lg:top-28 lg:self-start">
+          <div>
+            <label for="d-text" class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Sign Text</label>
+            <input type="text" id="d-text" maxlength="40" value="YOUR BUSINESS" class="mt-2 w-full min-h-[44px] rounded-sm border border-slate-300 px-4 py-2.5 font-body focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky" />
+          </div>
+
+          <div>
+            <label for="d-font" class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Lettering Style</label>
+            <select id="d-font" class="mt-2 w-full min-h-[44px] rounded-sm border border-slate-300 px-4 py-2.5 font-body bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky">
+              <option value="'Barlow Condensed', sans-serif" selected>Industrial (Barlow Condensed)</option>
+              <option value="'Anton', sans-serif">Bold Impact (Anton)</option>
+              <option value="'Oswald', sans-serif">Classic Sign (Oswald)</option>
+              <option value="'Pacifico', cursive">Script (Pacifico)</option>
+            </select>
+          </div>
+
+          <div>
+            <span class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Units</span>
+            <div class="mt-2 flex gap-4">
+              <label class="inline-flex items-center gap-2 font-body normal-case tracking-normal">
+                <input type="radio" name="d-unit" value="ft" checked class="h-4 w-4 accent-steel" />
+                Feet
+              </label>
+              <label class="inline-flex items-center gap-2 font-body normal-case tracking-normal">
+                <input type="radio" name="d-unit" value="in" class="h-4 w-4 accent-steel" />
+                Inches
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between">
+              <label for="d-height" class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Letter Height</label>
+              <span id="d-height-label" class="font-display text-sm font-semibold text-steel">3 ft</span>
+            </div>
+            <input type="range" id="d-height" min="0.5" max="10" step="0.5" value="3" class="mt-2 w-full accent-steel" />
+          </div>
+
+          <div>
+            <label for="d-material" class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Material</label>
+            <select id="d-material" class="mt-2 w-full min-h-[44px] rounded-sm border border-slate-300 px-4 py-2.5 font-body bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky">
+              <option value="metal" selected>Aluminum / Metal</option>
+              <option value="acrylic">Acrylic</option>
+              <option value="led">LED-Illuminated</option>
+              <option value="vinyl">Vinyl / Printed</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="d-color" class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Color</label>
+            <div class="mt-2 flex items-center gap-3">
+              <input type="color" id="d-color" value="#1c5a8c" class="h-11 w-14 cursor-pointer rounded-sm border border-slate-300" />
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-swatch="#0b2a4a" class="h-7 w-7 rounded-full border border-slate-300" style="background:#0b2a4a" aria-label="Navy"></button>
+                <button type="button" data-swatch="#1c5a8c" class="h-7 w-7 rounded-full border border-slate-300" style="background:#1c5a8c" aria-label="Steel Blue"></button>
+                <button type="button" data-swatch="#8fc7e8" class="h-7 w-7 rounded-full border border-slate-300" style="background:#8fc7e8" aria-label="Sky"></button>
+                <button type="button" data-swatch="#0a0a0a" class="h-7 w-7 rounded-full border border-slate-300" style="background:#0a0a0a" aria-label="Black"></button>
+                <button type="button" data-swatch="#ffffff" class="h-7 w-7 rounded-full border border-slate-300" style="background:#ffffff" aria-label="White"></button>
+                <button type="button" data-swatch="#dc2626" class="h-7 w-7 rounded-full border border-slate-300" style="background:#dc2626" aria-label="Red"></button>
+                <button type="button" data-swatch="#eab308" class="h-7 w-7 rounded-full border border-slate-300" style="background:#eab308" aria-label="Yellow"></button>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="d-send" class="btn-accent w-full">Send This Design</button>
+          <p class="text-xs text-slate-500 font-body normal-case tracking-normal">
+            This downloads an image of your design and takes you to our quote form with the details filled in &mdash; attach the downloaded image to your message before sending.
+          </p>
+        </div>
+
+        <!-- CANVAS -->
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <p class="text-sm text-slate-500 font-body normal-case tracking-normal">Scroll or pinch to zoom &middot; drag to pan</p>
+            <div class="flex items-center gap-2">
+              <button type="button" id="d-zoom-out" aria-label="Zoom out" class="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-300 bg-white text-navy hover:bg-slate-100 cursor-pointer">&minus;</button>
+              <span id="d-zoom-label" class="w-14 text-center font-display font-semibold text-navy">100%</span>
+              <button type="button" id="d-zoom-in" aria-label="Zoom in" class="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-300 bg-white text-navy hover:bg-slate-100 cursor-pointer">+</button>
+              <button type="button" id="d-zoom-reset" class="ml-2 rounded-sm border border-slate-300 bg-white px-3 h-10 font-display text-sm font-semibold uppercase text-navy hover:bg-slate-100 cursor-pointer">Reset</button>
+            </div>
+          </div>
+          <div class="relative w-full overflow-hidden rounded-sm border border-slate-300" style="height: 520px;">
+            <canvas id="design-canvas" class="block h-full w-full"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="bg-steel">
+      <div class="container-x py-16 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        <h2 class="text-3xl md:text-4xl font-bold text-white">Prefer To Talk It Through?</h2>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="contact.html" class="btn-dark">Get a Quote</a>
+          <a href="tel:+17082431717" class="btn-ghost">Call 708-243-1717</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-ink text-white/70">
+    <div class="container-x py-16 grid gap-10 md:grid-cols-4">
+      <div>
+        <img src="images/logo.svg" alt="Signco Fabrications" class="h-10 w-auto mb-4" />
+        <p class="text-sm">Custom fabrications. Family owned. Done the right way.</p>
+      </div>
+      <div>
+        <h3 class="font-display text-sm font-semibold uppercase tracking-wide text-white">Navigate</h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href="services.html" class="hover:text-sky">Services</a></li>
+          <li><a href="portfolio.html" class="hover:text-sky">Portfolio</a></li>
+          <li><a href="process.html" class="hover:text-sky">Process</a></li>
+          <li><a href="about.html" class="hover:text-sky">About</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-display text-sm font-semibold uppercase tracking-wide text-white">Services</h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href="services.html#fabrication" class="hover:text-sky">Custom Fabrication</a></li>
+          <li><a href="services.html#led" class="hover:text-sky">LED Signaling</a></li>
+          <li><a href="services.html#maintenance" class="hover:text-sky">Installation &amp; Maintenance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-display text-sm font-semibold uppercase tracking-wide text-white">Contact</h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href="tel:+17082431717" class="hover:text-sky">708-243-1717</a></li>
+          <li>2480 Greenleaf Ave<br />Elk Grove Village, IL</li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10">
+      <div class="container-x py-6 text-xs text-white/50">
+        &copy; <span id="year"></span> Signco Fabrications. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+  <script src="js/design.js" defer></script>
+</body>
+</html>

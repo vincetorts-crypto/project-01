@@ -40,4 +40,18 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   }
+
+  var messageField = document.getElementById('message');
+  var serviceField = document.getElementById('service');
+  var designBanner = document.getElementById('design-banner');
+  if (messageField && window.location.search.indexOf('design=1') !== -1) {
+    var summary = null;
+    try { summary = localStorage.getItem('signcoDesignSummary'); } catch (e) { /* ignore */ }
+    if (summary) {
+      messageField.value = summary;
+      if (serviceField) serviceField.value = 'Custom Sign Design';
+      if (designBanner) designBanner.hidden = false;
+      try { localStorage.removeItem('signcoDesignSummary'); } catch (e) { /* ignore */ }
+    }
+  }
 });
