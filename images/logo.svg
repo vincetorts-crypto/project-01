@@ -1,0 +1,20 @@
+<!--
+  LOGO PLACEHOLDER — built from the brand palette (navy/steel/sky chrome-blue + black)
+  seen in the real Signco Fabrications logo, since the actual logo file hasn't been
+  supplied yet. Replace this file with the real logo artwork (SVG or PNG) once
+  available — every page references "images/logo.svg" / "images/logo-mark.svg" so
+  swapping this one file updates the whole site. Designed for use on dark backgrounds.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" role="img" aria-label="Signco Fabrications">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8fc7e8" />
+      <stop offset="55%" stop-color="#1c5a8c" />
+      <stop offset="100%" stop-color="#0b2a4a" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="10" width="44" height="44" rx="4" fill="url(#chrome)" stroke="#000000" stroke-width="1.5" />
+  <path d="M14 34l8-10 6 7 8-11 8 14" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="58" y="34" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="800" letter-spacing="1" fill="#ffffff">SIGNCO</text>
+  <text x="58" y="50" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" letter-spacing="4" fill="#8fc7e8">FABRICATIONS</text>
+</svg>
