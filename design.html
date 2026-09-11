@@ -76,6 +76,10 @@
               <option value="'Barlow Condensed', sans-serif" selected>Industrial (Barlow Condensed)</option>
               <option value="'Anton', sans-serif">Bold Impact (Anton)</option>
               <option value="'Oswald', sans-serif">Classic Sign (Oswald)</option>
+              <option value="'Bebas Neue', sans-serif">Condensed Sign (Bebas Neue)</option>
+              <option value="'Montserrat', sans-serif">Modern Sans (Montserrat)</option>
+              <option value="'Playfair Display', serif">Elegant Serif (Playfair)</option>
+              <option value="'Righteous', sans-serif">Rounded Display (Righteous)</option>
               <option value="'Pacifico', cursive">Script (Pacifico)</option>
             </select>
           </div>
@@ -100,6 +104,16 @@
               <span id="d-height-label" class="font-display text-sm font-semibold text-steel">3 ft</span>
             </div>
             <input type="range" id="d-height" min="0.5" max="10" step="0.5" value="3" class="mt-2 w-full accent-steel" />
+            <p class="mt-2 text-xs text-slate-500 font-body normal-case tracking-normal">Want one letter bigger or smaller than the rest? Click any letter in the preview to resize just that letter.</p>
+          </div>
+
+          <div id="d-letter-panel" class="hidden rounded-sm border border-dashed border-steel bg-sky/10 p-4">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-display text-sm font-semibold uppercase tracking-wide text-navy">Letter &ldquo;<span id="d-letter-char">A</span>&rdquo; Size</span>
+              <button type="button" id="d-letter-clear" class="shrink-0 font-display text-xs font-semibold uppercase text-steel hover:text-navy underline cursor-pointer">Reset</button>
+            </div>
+            <input type="range" id="d-letter-size" min="50" max="220" step="5" value="100" class="mt-2 w-full accent-steel" />
+            <p class="mt-1 text-xs text-slate-500 font-body normal-case tracking-normal"><span id="d-letter-size-label">100%</span> of base letter height</p>
           </div>
 
           <div>

@@ -224,117 +224,157 @@
     drawBrushedLines3d(faceCtx, w, h, 0.1);
 
     var text = (state.text || 'YOUR SIGN').toUpperCase();
-    var fontPx = 140;
-    faceCtx.textAlign = 'center';
-    faceCtx.textBaseline = 'middle';
-    faceCtx.font = "700 " + fontPx + "px 'Barlow Condensed', sans-serif";
+    var fontFamily = state.font || "'Barlow Condensed', sans-serif";
+    var letterScales = (state.letterScales && state.letterScales.length === text.length)
+      ? state.letterScales
+      : text.split('').map(function () { return 1; });
+
+    var baseFontPx = 140;
+    faceCtx.textAlign = 'left';
+    faceCtx.textBaseline = 'alphabetic';
+
+    function widthAt(fpxScale) {
+      var total = 0;
+      for (var k = 0; k < text.length; k++) {
+        var fpx = baseFontPx * fpxScale * (letterScales[k] || 1);
+        faceCtx.font = "700 " + fpx + "px " + fontFamily;
+        total += faceCtx.measureText(text[k]).width;
+      }
+      return total;
+    }
+
     var maxW = w * 0.86;
-    var textWidth = faceCtx.measureText(text).width;
-    while (textWidth > maxW && fontPx > 20) {
-      fontPx -= 4;
-      faceCtx.font = "700 " + fontPx + "px 'Barlow Condensed', sans-serif";
-      textWidth = faceCtx.measureText(text).width;
+    var scaleFactor = 1;
+    var totalWidth = widthAt(scaleFactor);
+    while (totalWidth > maxW && baseFontPx * scaleFactor > 20) {
+      scaleFactor -= 0.03;
+      totalWidth = widthAt(scaleFactor);
+    }
+    baseFontPx = baseFontPx * scaleFactor;
+
+    var charWidths = [];
+    totalWidth = 0;
+    for (var m = 0; m < text.length; m++) {
+      var scaleM = letterScales[m] || 1;
+      var fpxM = baseFontPx * scaleM;
+      faceCtx.font = "700 " + fpxM + "px " + fontFamily;
+      var cwM = faceCtx.measureText(text[m]).width;
+      charWidths.push(cwM);
+      totalWidth += cwM;
     }
 
     var cx = w / 2, cy = h / 2;
-    var bx = cx - textWidth / 2 - fontPx * 0.2, by = cy - fontPx * 0.65;
-    var bw = textWidth + fontPx * 0.4, bh = fontPx * 1.3;
+    var baselineY = cy + baseFontPx * 0.32;
 
     faceCtx.save();
 
-    if (state.material === 'metal') {
-      faceCtx.save();
-      faceCtx.shadowColor = 'rgba(0,0,0,0.45)';
-      faceCtx.shadowBlur = fontPx * 0.14;
-      faceCtx.shadowOffsetX = fontPx * 0.015;
-      faceCtx.shadowOffsetY = fontPx * 0.06;
-      faceCtx.fillStyle = shade(state.color, -40);
-      faceCtx.fillText(text, cx, cy);
-      faceCtx.restore();
+    var cursorX = cx - totalWidth / 2;
+    for (var n = 0; n < text.length; n++) {
+      var ch = text[n];
+      var scaleN = letterScales[n] || 1;
+      var fontPx = baseFontPx * scaleN;
+      var cw = charWidths[n];
+      faceCtx.font = "700 " + fontPx + "px " + fontFamily;
 
-      faceCtx.save();
-      faceCtx.globalAlpha = 0.55;
-      faceCtx.fillStyle = shade(state.color, 60);
-      faceCtx.fillText(text, cx - fontPx * 0.012, cy - fontPx * 0.018);
-      faceCtx.restore();
+      var bx = cursorX - fontPx * 0.06, by = baselineY - fontPx * 0.82;
+      var bw = cw + fontPx * 0.12, bh = fontPx * 1.1;
 
-      var grad = faceCtx.createLinearGradient(0, cy - fontPx * 0.55, 0, cy + fontPx * 0.55);
-      grad.addColorStop(0, shade(state.color, 45));
-      grad.addColorStop(0.48, state.color);
-      grad.addColorStop(0.52, shade(state.color, -8));
-      grad.addColorStop(1, shade(state.color, -35));
-      faceCtx.fillStyle = grad;
-      faceCtx.strokeStyle = 'rgba(0,0,0,0.55)';
-      faceCtx.lineWidth = Math.max(1, fontPx * 0.02);
-      faceCtx.strokeText(text, cx, cy);
-      faceCtx.fillText(text, cx, cy);
+      if (state.material === 'metal') {
+        faceCtx.save();
+        faceCtx.shadowColor = 'rgba(0,0,0,0.45)';
+        faceCtx.shadowBlur = fontPx * 0.14;
+        faceCtx.shadowOffsetX = fontPx * 0.015;
+        faceCtx.shadowOffsetY = fontPx * 0.06;
+        faceCtx.fillStyle = shade(state.color, -40);
+        faceCtx.fillText(ch, cursorX, baselineY);
+        faceCtx.restore();
 
-      faceCtx.save();
-      faceCtx.globalCompositeOperation = 'source-atop';
-      faceCtx.globalAlpha = 0.55;
-      faceCtx.fillStyle = getBrushedPattern3d();
-      faceCtx.fillRect(bx, by, bw, bh);
-      faceCtx.restore();
+        faceCtx.save();
+        faceCtx.globalAlpha = 0.55;
+        faceCtx.fillStyle = shade(state.color, 60);
+        faceCtx.fillText(ch, cursorX - fontPx * 0.012, baselineY - fontPx * 0.018);
+        faceCtx.restore();
 
-    } else if (state.material === 'acrylic') {
-      faceCtx.save();
-      faceCtx.globalAlpha = 0.5;
-      faceCtx.fillStyle = shade(state.color, -55);
-      faceCtx.fillText(text, cx + fontPx * 0.03, cy + fontPx * 0.05);
-      faceCtx.restore();
+        var grad = faceCtx.createLinearGradient(0, baselineY - fontPx * 0.85, 0, baselineY + fontPx * 0.25);
+        grad.addColorStop(0, shade(state.color, 45));
+        grad.addColorStop(0.48, state.color);
+        grad.addColorStop(0.52, shade(state.color, -8));
+        grad.addColorStop(1, shade(state.color, -35));
+        faceCtx.fillStyle = grad;
+        faceCtx.strokeStyle = 'rgba(0,0,0,0.55)';
+        faceCtx.lineWidth = Math.max(1, fontPx * 0.02);
+        faceCtx.strokeText(ch, cursorX, baselineY);
+        faceCtx.fillText(ch, cursorX, baselineY);
 
-      faceCtx.globalAlpha = 0.85;
-      faceCtx.fillStyle = state.color;
-      faceCtx.fillText(text, cx, cy);
-      faceCtx.globalAlpha = 1;
+        faceCtx.save();
+        faceCtx.globalCompositeOperation = 'source-atop';
+        faceCtx.globalAlpha = 0.55;
+        faceCtx.fillStyle = getBrushedPattern3d();
+        faceCtx.fillRect(bx, by, bw, bh);
+        faceCtx.restore();
 
-      faceCtx.save();
-      faceCtx.globalCompositeOperation = 'source-atop';
-      var gloss = faceCtx.createLinearGradient(0, cy - fontPx * 0.6, 0, cy + fontPx * 0.6);
-      gloss.addColorStop(0, 'rgba(255,255,255,0.55)');
-      gloss.addColorStop(0.4, 'rgba(255,255,255,0.08)');
-      gloss.addColorStop(1, 'rgba(255,255,255,0)');
-      faceCtx.fillStyle = gloss;
-      faceCtx.fillRect(bx, by, bw, bh);
-      faceCtx.restore();
+      } else if (state.material === 'acrylic') {
+        faceCtx.save();
+        faceCtx.globalAlpha = 0.5;
+        faceCtx.fillStyle = shade(state.color, -55);
+        faceCtx.fillText(ch, cursorX + fontPx * 0.03, baselineY + fontPx * 0.05);
+        faceCtx.restore();
 
-    } else if (state.material === 'led') {
-      faceCtx.save();
-      faceCtx.shadowColor = state.color;
-      faceCtx.shadowBlur = fontPx * 0.55;
-      faceCtx.globalAlpha = 0.9;
-      faceCtx.fillStyle = state.color;
-      faceCtx.fillText(text, cx, cy);
-      faceCtx.restore();
+        faceCtx.globalAlpha = 0.85;
+        faceCtx.fillStyle = state.color;
+        faceCtx.fillText(ch, cursorX, baselineY);
+        faceCtx.globalAlpha = 1;
 
-      faceCtx.save();
-      faceCtx.shadowColor = state.color;
-      faceCtx.shadowBlur = fontPx * 0.28;
-      faceCtx.fillStyle = state.color;
-      faceCtx.fillText(text, cx, cy);
-      faceCtx.restore();
+        faceCtx.save();
+        faceCtx.globalCompositeOperation = 'source-atop';
+        var gloss = faceCtx.createLinearGradient(0, baselineY - fontPx * 0.9, 0, baselineY + fontPx * 0.3);
+        gloss.addColorStop(0, 'rgba(255,255,255,0.55)');
+        gloss.addColorStop(0.4, 'rgba(255,255,255,0.08)');
+        gloss.addColorStop(1, 'rgba(255,255,255,0)');
+        faceCtx.fillStyle = gloss;
+        faceCtx.fillRect(bx, by, bw, bh);
+        faceCtx.restore();
 
-      faceCtx.save();
-      faceCtx.shadowColor = '#ffffff';
-      faceCtx.shadowBlur = fontPx * 0.1;
-      faceCtx.globalAlpha = 0.85;
-      faceCtx.fillStyle = '#ffffff';
-      faceCtx.fillText(text, cx, cy);
-      faceCtx.restore();
+      } else if (state.material === 'led') {
+        faceCtx.save();
+        faceCtx.shadowColor = state.color;
+        faceCtx.shadowBlur = fontPx * 0.55;
+        faceCtx.globalAlpha = 0.9;
+        faceCtx.fillStyle = state.color;
+        faceCtx.fillText(ch, cursorX, baselineY);
+        faceCtx.restore();
 
-      faceCtx.fillStyle = state.color;
-      faceCtx.fillText(text, cx, cy);
+        faceCtx.save();
+        faceCtx.shadowColor = state.color;
+        faceCtx.shadowBlur = fontPx * 0.28;
+        faceCtx.fillStyle = state.color;
+        faceCtx.fillText(ch, cursorX, baselineY);
+        faceCtx.restore();
 
-    } else {
-      faceCtx.fillStyle = state.color;
-      faceCtx.fillText(text, cx, cy);
+        faceCtx.save();
+        faceCtx.shadowColor = '#ffffff';
+        faceCtx.shadowBlur = fontPx * 0.1;
+        faceCtx.globalAlpha = 0.85;
+        faceCtx.fillStyle = '#ffffff';
+        faceCtx.fillText(ch, cursorX, baselineY);
+        faceCtx.restore();
 
-      faceCtx.save();
-      faceCtx.globalCompositeOperation = 'source-atop';
-      faceCtx.globalAlpha = 0.5;
-      faceCtx.fillStyle = getGrainPattern3d();
-      faceCtx.fillRect(bx, by, bw, bh);
-      faceCtx.restore();
+        faceCtx.fillStyle = state.color;
+        faceCtx.fillText(ch, cursorX, baselineY);
+
+      } else {
+        faceCtx.fillStyle = state.color;
+        faceCtx.fillText(ch, cursorX, baselineY);
+
+        faceCtx.save();
+        faceCtx.globalCompositeOperation = 'source-atop';
+        faceCtx.globalAlpha = 0.5;
+        faceCtx.fillStyle = getGrainPattern3d();
+        faceCtx.fillRect(bx, by, bw, bh);
+        faceCtx.restore();
+      }
+
+      cursorX += cw;
     }
 
     faceCtx.restore();

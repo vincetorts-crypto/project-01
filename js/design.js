@@ -18,6 +18,11 @@ document.addEventListener('DOMContentLoaded', function () {
     zoomLabel: document.getElementById('d-zoom-label'),
     send: document.getElementById('d-send'),
     materialDesc: document.getElementById('d-material-desc'),
+    letterPanel: document.getElementById('d-letter-panel'),
+    letterChar: document.getElementById('d-letter-char'),
+    letterSize: document.getElementById('d-letter-size'),
+    letterSizeLabel: document.getElementById('d-letter-size-label'),
+    letterClear: document.getElementById('d-letter-clear'),
   };
 
   var state = {
@@ -32,12 +37,15 @@ document.addEventListener('DOMContentLoaded', function () {
     zoom: 1,
     panX: 0,
     panY: 0,
+    letterScales: [],
+    selectedLetterIndex: -1,
   };
 
   var PPF = 50; // base pixels per foot at zoom 1
   var logicalW = 0, logicalH = 0;
   var dragging = false, dragMoved = false, lastX = 0, lastY = 0;
   var texCache = {};
+  var letterRects = [];
 
   var materialDescriptions = {
     metal: 'Brushed metal finish with a beveled, dimensional edge.',
@@ -111,12 +119,13 @@ document.addEventListener('DOMContentLoaded', function () {
     ).toString(16).slice(1);
   }
 
-  function renderMaterialText(text, cx, cy, fontPx) {
-    var textWidth = ctx.measureText(text).width;
-    var bx = cx - textWidth / 2 - fontPx * 0.2, by = cy - fontPx * 0.65;
-    var bw = textWidth + fontPx * 0.4, bh = fontPx * 1.3;
+  function renderMaterialChar(ch, x, baselineY, fontPx, charWidth) {
+    var bx = x - fontPx * 0.06, by = baselineY - fontPx * 0.82;
+    var bw = charWidth + fontPx * 0.12, bh = fontPx * 1.1;
 
     ctx.save();
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
 
     if (state.material === 'metal') {
       ctx.save();
@@ -125,16 +134,16 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.shadowOffsetX = fontPx * 0.015;
       ctx.shadowOffsetY = fontPx * 0.06;
       ctx.fillStyle = shade(state.color, -40);
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
       ctx.restore();
 
       ctx.save();
       ctx.globalAlpha = 0.55;
       ctx.fillStyle = shade(state.color, 60);
-      ctx.fillText(text, cx - fontPx * 0.012, cy - fontPx * 0.018);
+      ctx.fillText(ch, x - fontPx * 0.012, baselineY - fontPx * 0.018);
       ctx.restore();
 
-      var grad = ctx.createLinearGradient(0, cy - fontPx * 0.55, 0, cy + fontPx * 0.55);
+      var grad = ctx.createLinearGradient(0, baselineY - fontPx * 0.85, 0, baselineY + fontPx * 0.25);
       grad.addColorStop(0, shade(state.color, 45));
       grad.addColorStop(0.48, state.color);
       grad.addColorStop(0.52, shade(state.color, -8));
@@ -142,8 +151,8 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.fillStyle = grad;
       ctx.strokeStyle = 'rgba(0,0,0,0.55)';
       ctx.lineWidth = Math.max(1, fontPx * 0.02);
-      ctx.strokeText(text, cx, cy);
-      ctx.fillText(text, cx, cy);
+      ctx.strokeText(ch, x, baselineY);
+      ctx.fillText(ch, x, baselineY);
 
       ctx.save();
       ctx.globalCompositeOperation = 'source-atop';
@@ -156,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.save();
       ctx.globalAlpha = 0.5;
       ctx.fillStyle = shade(state.color, -55);
-      ctx.fillText(text, cx + fontPx * 0.03, cy + fontPx * 0.05);
+      ctx.fillText(ch, x + fontPx * 0.03, baselineY + fontPx * 0.05);
       ctx.restore();
 
       ctx.save();
@@ -165,17 +174,17 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.shadowOffsetY = fontPx * 0.04;
       ctx.globalAlpha = 0.02;
       ctx.fillStyle = '#000';
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
       ctx.restore();
 
       ctx.globalAlpha = 0.85;
       ctx.fillStyle = state.color;
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
       ctx.globalAlpha = 1;
 
       ctx.save();
       ctx.globalCompositeOperation = 'source-atop';
-      var gloss = ctx.createLinearGradient(0, cy - fontPx * 0.6, 0, cy + fontPx * 0.6);
+      var gloss = ctx.createLinearGradient(0, baselineY - fontPx * 0.9, 0, baselineY + fontPx * 0.3);
       gloss.addColorStop(0, 'rgba(255,255,255,0.55)');
       gloss.addColorStop(0.4, 'rgba(255,255,255,0.08)');
       gloss.addColorStop(1, 'rgba(255,255,255,0)');
@@ -189,14 +198,14 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.shadowBlur = fontPx * 0.55;
       ctx.globalAlpha = 0.9;
       ctx.fillStyle = state.color;
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
       ctx.restore();
 
       ctx.save();
       ctx.shadowColor = state.color;
       ctx.shadowBlur = fontPx * 0.28;
       ctx.fillStyle = state.color;
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
       ctx.restore();
 
       ctx.save();
@@ -204,15 +213,15 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.shadowBlur = fontPx * 0.1;
       ctx.globalAlpha = 0.85;
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
       ctx.restore();
 
       ctx.fillStyle = state.color;
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
 
     } else {
       ctx.fillStyle = state.color;
-      ctx.fillText(text, cx, cy);
+      ctx.fillText(ch, x, baselineY);
 
       ctx.save();
       ctx.globalCompositeOperation = 'source-atop';
@@ -223,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     ctx.restore();
+    return { x: bx, y: by, w: bw, h: bh };
   }
 
   function drawRuler() {
@@ -273,32 +283,76 @@ document.addEventListener('DOMContentLoaded', function () {
     var centerX = logicalW / 2 + state.panX;
     var centerY = logicalH / 2 + state.panY;
 
-    var fontPx = Math.max(6, (state.heightInches / 12) * PPF * state.zoom);
-    ctx.font = "700 " + fontPx + "px " + state.font;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
+    var baseFontPx = Math.max(6, (state.heightInches / 12) * PPF * state.zoom);
     var displayText = state.text || 'YOUR SIGN';
-    var textWidth = ctx.measureText(displayText).width;
 
-    var padX = fontPx * 0.5;
-    var padY = fontPx * 0.35;
+    if (state.letterScales.length !== displayText.length) {
+      var prev = state.letterScales;
+      state.letterScales = displayText.split('').map(function (ch, i) {
+        return prev[i] || 1;
+      });
+      if (state.selectedLetterIndex >= displayText.length) {
+        state.selectedLetterIndex = -1;
+      }
+    }
+
+    var charWidths = [];
+    var maxScale = 1;
+    var totalWidth = 0;
+    for (var i = 0; i < displayText.length; i++) {
+      var scale = state.letterScales[i] || 1;
+      maxScale = Math.max(maxScale, scale);
+      var fpx = baseFontPx * scale;
+      ctx.font = "700 " + fpx + "px " + state.font;
+      var cw = ctx.measureText(displayText[i]).width;
+      charWidths.push(cw);
+      totalWidth += cw;
+    }
+
+    var baselineY = centerY + baseFontPx * 0.32;
+    var maxFontPx = baseFontPx * maxScale;
+
+    var padX = baseFontPx * 0.5;
+    var padY = maxFontPx * 0.4;
     ctx.save();
     ctx.globalAlpha = 0.16;
     ctx.fillStyle = '#0a0a0a';
-    roundRect(centerX - textWidth / 2 - padX, centerY - fontPx / 2 - padY, textWidth + padX * 2, fontPx + padY * 2, 10);
+    roundRect(centerX - totalWidth / 2 - padX, baselineY - maxFontPx * 0.85 - padY, totalWidth + padX * 2, maxFontPx * 1.1 + padY * 2, 10);
     ctx.fill();
     ctx.restore();
 
-    renderMaterialText(displayText, centerX, centerY, fontPx);
+    letterRects = [];
+    var cursorX = centerX - totalWidth / 2;
+    for (var j = 0; j < displayText.length; j++) {
+      var jScale = state.letterScales[j] || 1;
+      var jFontPx = baseFontPx * jScale;
+      ctx.font = "700 " + jFontPx + "px " + state.font;
+      var rect = renderMaterialChar(displayText[j], cursorX, baselineY, jFontPx, charWidths[j]);
+      letterRects.push({ x: rect.x, y: rect.y, w: rect.w, h: rect.h, index: j });
+
+      if (j === state.selectedLetterIndex) {
+        ctx.save();
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.restore();
+      }
+
+      cursorX += charWidths[j];
+    }
+
     drawRuler();
+    updateLetterPanel();
 
     if (window.updateDesign3D) {
       window.updateDesign3D({
         text: displayText,
+        font: state.font,
         material: state.material,
         color: state.color,
         heightInches: state.heightInches,
+        letterScales: state.letterScales.slice(),
       });
     }
   }
@@ -309,6 +363,34 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       els.heightLabel.textContent = Math.round(state.heightInches) + ' in';
     }
+  }
+
+  function updateLetterPanel() {
+    if (!els.letterPanel) return;
+    var idx = state.selectedLetterIndex;
+    var ch = idx >= 0 ? state.text[idx] : null;
+    if (idx < 0 || !ch) {
+      els.letterPanel.classList.add('hidden');
+      return;
+    }
+    els.letterPanel.classList.remove('hidden');
+    els.letterChar.textContent = ch === ' ' ? '␣' : ch;
+    var pct = Math.round((state.letterScales[idx] || 1) * 100);
+    els.letterSize.value = pct;
+    els.letterSizeLabel.textContent = pct + '%';
+  }
+
+  function pickLetterAt(clientX, clientY) {
+    var rect = canvas.getBoundingClientRect();
+    var px = clientX - rect.left;
+    var py = clientY - rect.top;
+    for (var i = 0; i < letterRects.length; i++) {
+      var r = letterRects[i];
+      if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) {
+        return r.index;
+      }
+    }
+    return -1;
   }
 
   function setZoom(z) {
@@ -377,6 +459,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  if (els.letterSize) {
+    els.letterSize.addEventListener('input', function () {
+      var idx = state.selectedLetterIndex;
+      if (idx < 0) return;
+      var pct = parseInt(els.letterSize.value, 10) || 100;
+      state.letterScales[idx] = pct / 100;
+      els.letterSizeLabel.textContent = pct + '%';
+      draw();
+    });
+  }
+
+  if (els.letterClear) {
+    els.letterClear.addEventListener('click', function () {
+      var idx = state.selectedLetterIndex;
+      if (idx < 0) return;
+      state.letterScales[idx] = 1;
+      draw();
+    });
+  }
+
   els.zoomIn.addEventListener('click', function () { setZoom(state.zoom + 0.2); });
   els.zoomOut.addEventListener('click', function () { setZoom(state.zoom - 0.2); });
   els.zoomReset.addEventListener('click', function () {
@@ -401,6 +503,11 @@ document.addEventListener('DOMContentLoaded', function () {
     dragging = false;
     canvas.style.cursor = 'grab';
   });
+  canvas.addEventListener('click', function (e) {
+    if (dragMoved) return;
+    state.selectedLetterIndex = pickLetterAt(e.clientX, e.clientY);
+    draw();
+  });
   window.addEventListener('mousemove', function (e) {
     if (!dragging) return;
     dragMoved = true;
@@ -414,18 +521,26 @@ document.addEventListener('DOMContentLoaded', function () {
   canvas.addEventListener('touchstart', function (e) {
     if (e.touches.length !== 1) return;
     dragging = true;
+    dragMoved = false;
     lastX = e.touches[0].clientX;
     lastY = e.touches[0].clientY;
   }, { passive: true });
   canvas.addEventListener('touchmove', function (e) {
     if (!dragging || e.touches.length !== 1) return;
+    dragMoved = true;
     state.panX += (e.touches[0].clientX - lastX);
     state.panY += (e.touches[0].clientY - lastY);
     lastX = e.touches[0].clientX;
     lastY = e.touches[0].clientY;
     draw();
   }, { passive: true });
-  canvas.addEventListener('touchend', function () { dragging = false; });
+  canvas.addEventListener('touchend', function (e) {
+    dragging = false;
+    if (!dragMoved && e.changedTouches && e.changedTouches.length === 1) {
+      state.selectedLetterIndex = pickLetterAt(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      draw();
+    }
+  });
 
   els.send.addEventListener('click', function () {
     var dataUrl = canvas.toDataURL('image/png');
@@ -440,12 +555,15 @@ document.addEventListener('DOMContentLoaded', function () {
       ? (Math.round((state.heightInches / 12) * 10) / 10) + ' ft'
       : Math.round(state.heightInches) + ' in';
 
+    var hasCustomSizes = state.letterScales.some(function (s) { return Math.round(s * 100) !== 100; });
+
     var summary = 'Custom Sign Design (from Design Now tool)\n' +
       '- Text: "' + (state.text || 'YOUR SIGN') + '"\n' +
       '- Font: ' + state.fontLabel + '\n' +
       '- Letter Height: ' + heightDisplay + '\n' +
       '- Material: ' + state.materialLabel + '\n' +
-      '- Color: ' + state.color;
+      '- Color: ' + state.color +
+      (hasCustomSizes ? '\n- Custom per-letter sizing applied (see attached image)' : '');
 
     try { localStorage.setItem('signcoDesignSummary', summary); } catch (e) { /* ignore */ }
     window.location.href = 'contact.html?design=1';
