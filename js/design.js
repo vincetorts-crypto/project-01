@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     zoomReset: document.getElementById('d-zoom-reset'),
     zoomLabel: document.getElementById('d-zoom-label'),
     send: document.getElementById('d-send'),
+    materialDesc: document.getElementById('d-material-desc'),
   };
 
   var state = {
@@ -36,6 +37,45 @@ document.addEventListener('DOMContentLoaded', function () {
   var PPF = 50; // base pixels per foot at zoom 1
   var logicalW = 0, logicalH = 0;
   var dragging = false, dragMoved = false, lastX = 0, lastY = 0;
+  var texCache = {};
+
+  var materialDescriptions = {
+    metal: 'Brushed metal finish with a beveled, dimensional edge.',
+    acrylic: 'Translucent acrylic with visible edge depth and a soft gloss highlight.',
+    led: 'Illuminated face with a layered glow &mdash; bright core, soft outer halo.',
+    vinyl: 'Flat matte printed vinyl with a subtle print texture, no shine.',
+  };
+
+  function getBrushedPattern() {
+    if (texCache.brushed) return texCache.brushed;
+    var pc = document.createElement('canvas');
+    pc.width = 48; pc.height = 48;
+    var pctx = pc.getContext('2d');
+    for (var i = -48; i < 96; i += 4) {
+      pctx.strokeStyle = 'rgba(255,255,255,' + (0.05 + Math.random() * 0.12).toFixed(2) + ')';
+      pctx.lineWidth = 1;
+      pctx.beginPath();
+      pctx.moveTo(i, 0);
+      pctx.lineTo(i - 48, 48);
+      pctx.stroke();
+    }
+    texCache.brushed = ctx.createPattern(pc, 'repeat');
+    return texCache.brushed;
+  }
+
+  function getGrainPattern() {
+    if (texCache.grain) return texCache.grain;
+    var pc = document.createElement('canvas');
+    pc.width = 40; pc.height = 40;
+    var pctx = pc.getContext('2d');
+    for (var i = 0; i < 260; i++) {
+      var x = Math.random() * 40, y = Math.random() * 40;
+      pctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)';
+      pctx.fillRect(x, y, 1, 1);
+    }
+    texCache.grain = ctx.createPattern(pc, 'repeat');
+    return texCache.grain;
+  }
 
   function fitCanvas() {
     var ratio = window.devicePixelRatio || 1;
@@ -72,37 +112,116 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function renderMaterialText(text, cx, cy, fontPx) {
+    var textWidth = ctx.measureText(text).width;
+    var bx = cx - textWidth / 2 - fontPx * 0.2, by = cy - fontPx * 0.65;
+    var bw = textWidth + fontPx * 0.4, bh = fontPx * 1.3;
+
     ctx.save();
+
     if (state.material === 'metal') {
-      var grad = ctx.createLinearGradient(0, cy - fontPx / 2, 0, cy + fontPx / 2);
-      grad.addColorStop(0, shade(state.color, 40));
-      grad.addColorStop(0.5, state.color);
-      grad.addColorStop(1, shade(state.color, -30));
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = fontPx * 0.14;
+      ctx.shadowOffsetX = fontPx * 0.015;
+      ctx.shadowOffsetY = fontPx * 0.06;
+      ctx.fillStyle = shade(state.color, -40);
+      ctx.fillText(text, cx, cy);
+      ctx.restore();
+
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = shade(state.color, 60);
+      ctx.fillText(text, cx - fontPx * 0.012, cy - fontPx * 0.018);
+      ctx.restore();
+
+      var grad = ctx.createLinearGradient(0, cy - fontPx * 0.55, 0, cy + fontPx * 0.55);
+      grad.addColorStop(0, shade(state.color, 45));
+      grad.addColorStop(0.48, state.color);
+      grad.addColorStop(0.52, shade(state.color, -8));
+      grad.addColorStop(1, shade(state.color, -35));
       ctx.fillStyle = grad;
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
       ctx.lineWidth = Math.max(1, fontPx * 0.02);
       ctx.strokeText(text, cx, cy);
       ctx.fillText(text, cx, cy);
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = getBrushedPattern();
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.restore();
+
     } else if (state.material === 'acrylic') {
-      ctx.globalAlpha = 0.88;
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = shade(state.color, -55);
+      ctx.fillText(text, cx + fontPx * 0.03, cy + fontPx * 0.05);
+      ctx.restore();
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = fontPx * 0.16;
+      ctx.shadowOffsetY = fontPx * 0.04;
+      ctx.globalAlpha = 0.02;
+      ctx.fillStyle = '#000';
+      ctx.fillText(text, cx, cy);
+      ctx.restore();
+
+      ctx.globalAlpha = 0.85;
       ctx.fillStyle = state.color;
       ctx.fillText(text, cx, cy);
-      ctx.globalAlpha = 0.35;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, cx, cy - fontPx * 0.06);
+      ctx.globalAlpha = 1;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-atop';
+      var gloss = ctx.createLinearGradient(0, cy - fontPx * 0.6, 0, cy + fontPx * 0.6);
+      gloss.addColorStop(0, 'rgba(255,255,255,0.55)');
+      gloss.addColorStop(0.4, 'rgba(255,255,255,0.08)');
+      gloss.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = gloss;
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.restore();
+
     } else if (state.material === 'led') {
+      ctx.save();
       ctx.shadowColor = state.color;
-      ctx.shadowBlur = fontPx * 0.35;
+      ctx.shadowBlur = fontPx * 0.55;
+      ctx.globalAlpha = 0.9;
       ctx.fillStyle = state.color;
       ctx.fillText(text, cx, cy);
-      ctx.shadowBlur = fontPx * 0.15;
-      ctx.globalAlpha = 0.6;
+      ctx.restore();
+
+      ctx.save();
+      ctx.shadowColor = state.color;
+      ctx.shadowBlur = fontPx * 0.28;
+      ctx.fillStyle = state.color;
+      ctx.fillText(text, cx, cy);
+      ctx.restore();
+
+      ctx.save();
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = fontPx * 0.1;
+      ctx.globalAlpha = 0.85;
       ctx.fillStyle = '#ffffff';
       ctx.fillText(text, cx, cy);
+      ctx.restore();
+
+      ctx.fillStyle = state.color;
+      ctx.fillText(text, cx, cy);
+
     } else {
       ctx.fillStyle = state.color;
       ctx.fillText(text, cx, cy);
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = getGrainPattern();
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.restore();
     }
+
     ctx.restore();
   }
 
@@ -239,6 +358,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var opt = els.material.selectedOptions[0];
     state.material = opt.value;
     state.materialLabel = opt.textContent;
+    if (els.materialDesc) {
+      els.materialDesc.innerHTML = materialDescriptions[state.material] || '';
+    }
     draw();
   });
 

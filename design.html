@@ -110,21 +110,32 @@
               <option value="led">LED-Illuminated</option>
               <option value="vinyl">Vinyl / Printed</option>
             </select>
+            <p id="d-material-desc" class="mt-2 text-xs text-slate-500 font-body normal-case tracking-normal">Brushed metal finish with a beveled, dimensional edge.</p>
           </div>
 
           <div>
             <label for="d-color" class="block font-display text-sm font-semibold uppercase tracking-wide text-navy">Color</label>
             <div class="mt-2 flex items-center gap-3">
-              <input type="color" id="d-color" value="#1c5a8c" class="h-11 w-14 cursor-pointer rounded-sm border border-slate-300" />
-              <div class="flex flex-wrap gap-2">
-                <button type="button" data-swatch="#0b2a4a" class="h-7 w-7 rounded-full border border-slate-300" style="background:#0b2a4a" aria-label="Navy"></button>
-                <button type="button" data-swatch="#1c5a8c" class="h-7 w-7 rounded-full border border-slate-300" style="background:#1c5a8c" aria-label="Steel Blue"></button>
-                <button type="button" data-swatch="#8fc7e8" class="h-7 w-7 rounded-full border border-slate-300" style="background:#8fc7e8" aria-label="Sky"></button>
-                <button type="button" data-swatch="#0a0a0a" class="h-7 w-7 rounded-full border border-slate-300" style="background:#0a0a0a" aria-label="Black"></button>
-                <button type="button" data-swatch="#ffffff" class="h-7 w-7 rounded-full border border-slate-300" style="background:#ffffff" aria-label="White"></button>
-                <button type="button" data-swatch="#dc2626" class="h-7 w-7 rounded-full border border-slate-300" style="background:#dc2626" aria-label="Red"></button>
-                <button type="button" data-swatch="#eab308" class="h-7 w-7 rounded-full border border-slate-300" style="background:#eab308" aria-label="Yellow"></button>
-              </div>
+              <input type="color" id="d-color" value="#1c5a8c" class="h-11 w-14 shrink-0 cursor-pointer rounded-sm border border-slate-300" />
+              <p class="text-xs text-slate-500 font-body normal-case tracking-normal">Pick any custom shade, or choose from our common sign colors below.</p>
+            </div>
+            <div class="mt-3 grid grid-cols-8 gap-2">
+              <button type="button" data-swatch="#0b2a4a" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#0b2a4a" aria-label="Navy" title="Navy"></button>
+              <button type="button" data-swatch="#1c5a8c" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#1c5a8c" aria-label="Steel Blue" title="Steel Blue"></button>
+              <button type="button" data-swatch="#8fc7e8" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#8fc7e8" aria-label="Sky" title="Sky"></button>
+              <button type="button" data-swatch="#1d4ed8" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#1d4ed8" aria-label="Royal Blue" title="Royal Blue"></button>
+              <button type="button" data-swatch="#0f766e" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#0f766e" aria-label="Teal" title="Teal"></button>
+              <button type="button" data-swatch="#16a34a" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#16a34a" aria-label="Green" title="Green"></button>
+              <button type="button" data-swatch="#0a0a0a" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#0a0a0a" aria-label="Black" title="Black"></button>
+              <button type="button" data-swatch="#374151" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#374151" aria-label="Charcoal" title="Charcoal"></button>
+              <button type="button" data-swatch="#9ca3af" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#9ca3af" aria-label="Silver" title="Silver"></button>
+              <button type="button" data-swatch="#ffffff" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#ffffff" aria-label="White" title="White"></button>
+              <button type="button" data-swatch="#dc2626" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#dc2626" aria-label="Red" title="Red"></button>
+              <button type="button" data-swatch="#ea580c" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#ea580c" aria-label="Orange" title="Orange"></button>
+              <button type="button" data-swatch="#eab308" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#eab308" aria-label="Yellow" title="Yellow"></button>
+              <button type="button" data-swatch="#b45309" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#b45309" aria-label="Brass / Gold" title="Brass / Gold"></button>
+              <button type="button" data-swatch="#7c3aed" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#7c3aed" aria-label="Purple" title="Purple"></button>
+              <button type="button" data-swatch="#db2777" class="h-7 w-7 rounded-full border border-slate-300 ring-offset-2 hover:ring-2 hover:ring-steel" style="background:#db2777" aria-label="Magenta" title="Magenta"></button>
             </div>
           </div>
 

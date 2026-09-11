@@ -114,6 +114,39 @@
     controls.update();
   };
 
+  var texCache3d = {};
+
+  function getBrushedPattern3d() {
+    if (texCache3d.brushed) return texCache3d.brushed;
+    var pc = document.createElement('canvas');
+    pc.width = 48; pc.height = 48;
+    var pctx = pc.getContext('2d');
+    for (var i = -48; i < 96; i += 4) {
+      pctx.strokeStyle = 'rgba(255,255,255,' + (0.05 + Math.random() * 0.12).toFixed(2) + ')';
+      pctx.lineWidth = 1;
+      pctx.beginPath();
+      pctx.moveTo(i, 0);
+      pctx.lineTo(i - 48, 48);
+      pctx.stroke();
+    }
+    texCache3d.brushed = faceCtx.createPattern(pc, 'repeat');
+    return texCache3d.brushed;
+  }
+
+  function getGrainPattern3d() {
+    if (texCache3d.grain) return texCache3d.grain;
+    var pc = document.createElement('canvas');
+    pc.width = 40; pc.height = 40;
+    var pctx = pc.getContext('2d');
+    for (var i = 0; i < 260; i++) {
+      var x = Math.random() * 40, y = Math.random() * 40;
+      pctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)';
+      pctx.fillRect(x, y, 1, 1);
+    }
+    texCache3d.grain = faceCtx.createPattern(pc, 'repeat');
+    return texCache3d.grain;
+  }
+
   function renderFaceTexture(state) {
     var w = faceCanvas.width, h = faceCanvas.height;
     faceCtx.clearRect(0, 0, w, h);
@@ -134,37 +167,106 @@
     }
 
     var cx = w / 2, cy = h / 2;
+    var bx = cx - textWidth / 2 - fontPx * 0.2, by = cy - fontPx * 0.65;
+    var bw = textWidth + fontPx * 0.4, bh = fontPx * 1.3;
+
     faceCtx.save();
+
     if (state.material === 'metal') {
-      var grad = faceCtx.createLinearGradient(0, cy - fontPx / 2, 0, cy + fontPx / 2);
+      faceCtx.save();
+      faceCtx.shadowColor = 'rgba(0,0,0,0.45)';
+      faceCtx.shadowBlur = fontPx * 0.14;
+      faceCtx.shadowOffsetX = fontPx * 0.015;
+      faceCtx.shadowOffsetY = fontPx * 0.06;
+      faceCtx.fillStyle = shade(state.color, -40);
+      faceCtx.fillText(text, cx, cy);
+      faceCtx.restore();
+
+      faceCtx.save();
+      faceCtx.globalAlpha = 0.55;
+      faceCtx.fillStyle = shade(state.color, 60);
+      faceCtx.fillText(text, cx - fontPx * 0.012, cy - fontPx * 0.018);
+      faceCtx.restore();
+
+      var grad = faceCtx.createLinearGradient(0, cy - fontPx * 0.55, 0, cy + fontPx * 0.55);
       grad.addColorStop(0, shade(state.color, 45));
-      grad.addColorStop(0.5, state.color);
-      grad.addColorStop(1, shade(state.color, -30));
+      grad.addColorStop(0.48, state.color);
+      grad.addColorStop(0.52, shade(state.color, -8));
+      grad.addColorStop(1, shade(state.color, -35));
       faceCtx.fillStyle = grad;
       faceCtx.strokeStyle = 'rgba(0,0,0,0.55)';
       faceCtx.lineWidth = Math.max(1, fontPx * 0.02);
       faceCtx.strokeText(text, cx, cy);
       faceCtx.fillText(text, cx, cy);
+
+      faceCtx.save();
+      faceCtx.globalCompositeOperation = 'source-atop';
+      faceCtx.globalAlpha = 0.55;
+      faceCtx.fillStyle = getBrushedPattern3d();
+      faceCtx.fillRect(bx, by, bw, bh);
+      faceCtx.restore();
+
     } else if (state.material === 'acrylic') {
+      faceCtx.save();
+      faceCtx.globalAlpha = 0.5;
+      faceCtx.fillStyle = shade(state.color, -55);
+      faceCtx.fillText(text, cx + fontPx * 0.03, cy + fontPx * 0.05);
+      faceCtx.restore();
+
+      faceCtx.globalAlpha = 0.85;
+      faceCtx.fillStyle = state.color;
+      faceCtx.fillText(text, cx, cy);
+      faceCtx.globalAlpha = 1;
+
+      faceCtx.save();
+      faceCtx.globalCompositeOperation = 'source-atop';
+      var gloss = faceCtx.createLinearGradient(0, cy - fontPx * 0.6, 0, cy + fontPx * 0.6);
+      gloss.addColorStop(0, 'rgba(255,255,255,0.55)');
+      gloss.addColorStop(0.4, 'rgba(255,255,255,0.08)');
+      gloss.addColorStop(1, 'rgba(255,255,255,0)');
+      faceCtx.fillStyle = gloss;
+      faceCtx.fillRect(bx, by, bw, bh);
+      faceCtx.restore();
+
+    } else if (state.material === 'led') {
+      faceCtx.save();
+      faceCtx.shadowColor = state.color;
+      faceCtx.shadowBlur = fontPx * 0.55;
       faceCtx.globalAlpha = 0.9;
       faceCtx.fillStyle = state.color;
       faceCtx.fillText(text, cx, cy);
-      faceCtx.globalAlpha = 0.35;
-      faceCtx.fillStyle = '#ffffff';
-      faceCtx.fillText(text, cx, cy - fontPx * 0.06);
-    } else if (state.material === 'led') {
+      faceCtx.restore();
+
+      faceCtx.save();
       faceCtx.shadowColor = state.color;
-      faceCtx.shadowBlur = fontPx * 0.4;
+      faceCtx.shadowBlur = fontPx * 0.28;
       faceCtx.fillStyle = state.color;
       faceCtx.fillText(text, cx, cy);
-      faceCtx.shadowBlur = fontPx * 0.18;
-      faceCtx.globalAlpha = 0.65;
+      faceCtx.restore();
+
+      faceCtx.save();
+      faceCtx.shadowColor = '#ffffff';
+      faceCtx.shadowBlur = fontPx * 0.1;
+      faceCtx.globalAlpha = 0.85;
       faceCtx.fillStyle = '#ffffff';
       faceCtx.fillText(text, cx, cy);
+      faceCtx.restore();
+
+      faceCtx.fillStyle = state.color;
+      faceCtx.fillText(text, cx, cy);
+
     } else {
       faceCtx.fillStyle = state.color;
       faceCtx.fillText(text, cx, cy);
+
+      faceCtx.save();
+      faceCtx.globalCompositeOperation = 'source-atop';
+      faceCtx.globalAlpha = 0.5;
+      faceCtx.fillStyle = getGrainPattern3d();
+      faceCtx.fillRect(bx, by, bw, bh);
+      faceCtx.restore();
     }
+
     faceCtx.restore();
   }
 

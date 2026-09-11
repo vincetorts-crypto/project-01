@@ -106,6 +106,17 @@
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.35); }
 }
 
+/* ---- Slow drifting hero background ---- */
+.hero-bg {
+  animation: hero-drift 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes hero-drift {
+  0% { transform: scale(1.08) translate(0, 0); }
+  50% { transform: scale(1.13) translate(-1.4%, -0.8%); }
+  100% { transform: scale(1.08) translate(1.4%, 0.8%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
     opacity: 1;
@@ -117,5 +128,8 @@
   }
   .spark-particle {
     display: none;
+  }
+  .hero-bg {
+    animation: none;
   }
 }
