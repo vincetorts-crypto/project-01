@@ -173,6 +173,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderMaterialText(displayText, centerX, centerY, fontPx);
     drawRuler();
+
+    if (window.updateDesign3D) {
+      window.updateDesign3D({
+        text: displayText,
+        material: state.material,
+        color: state.color,
+        heightInches: state.heightInches,
+      });
+    }
   }
 
   function updateHeightLabel() {
@@ -333,4 +342,51 @@ document.addEventListener('DOMContentLoaded', function () {
     document.fonts.ready.then(draw);
   }
   draw();
+
+  // ---- 2D / 3D view toggle ----
+  var view2dBtn = document.getElementById('d-view-2d');
+  var view3dBtn = document.getElementById('d-view-3d');
+  var controls2d = document.getElementById('d-controls-2d');
+  var controls3d = document.getElementById('d-controls-3d');
+  var wrap2d = document.getElementById('d-canvas-2d-wrap');
+  var wrap3d = document.getElementById('d-canvas-3d-wrap');
+  var reset3dBtn = document.getElementById('d-3d-reset');
+  var view3dInitialized = false;
+
+  function showView(view) {
+    var is3d = view === '3d';
+    wrap2d.classList.toggle('hidden', is3d);
+    wrap3d.classList.toggle('hidden', !is3d);
+    controls2d.classList.toggle('hidden', is3d);
+    controls3d.classList.toggle('hidden', !is3d);
+
+    view2dBtn.classList.toggle('bg-steel', !is3d);
+    view2dBtn.classList.toggle('text-white', !is3d);
+    view2dBtn.classList.toggle('text-navy', is3d);
+    view2dBtn.setAttribute('aria-pressed', String(!is3d));
+
+    view3dBtn.classList.toggle('bg-steel', is3d);
+    view3dBtn.classList.toggle('text-white', is3d);
+    view3dBtn.classList.toggle('text-navy', !is3d);
+    view3dBtn.setAttribute('aria-pressed', String(is3d));
+
+    if (is3d) {
+      if (!view3dInitialized && window.initDesign3D) {
+        window.initDesign3D(wrap3d);
+        view3dInitialized = true;
+      }
+      if (window.resizeDesign3D) window.resizeDesign3D();
+      draw();
+    }
+  }
+
+  if (view2dBtn && view3dBtn) {
+    view2dBtn.addEventListener('click', function () { showView('2d'); });
+    view3dBtn.addEventListener('click', function () { showView('3d'); });
+  }
+  if (reset3dBtn) {
+    reset3dBtn.addEventListener('click', function () {
+      if (window.resetDesign3DView) window.resetDesign3DView();
+    });
+  }
 });

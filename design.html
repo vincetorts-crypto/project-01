@@ -137,17 +137,28 @@
         <!-- CANVAS -->
         <div>
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-            <p class="text-sm text-slate-500 font-body normal-case tracking-normal">Scroll or pinch to zoom &middot; drag to pan</p>
-            <div class="flex items-center gap-2">
-              <button type="button" id="d-zoom-out" aria-label="Zoom out" class="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-300 bg-white text-navy hover:bg-slate-100 cursor-pointer">&minus;</button>
-              <span id="d-zoom-label" class="w-14 text-center font-display font-semibold text-navy">100%</span>
-              <button type="button" id="d-zoom-in" aria-label="Zoom in" class="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-300 bg-white text-navy hover:bg-slate-100 cursor-pointer">+</button>
-              <button type="button" id="d-zoom-reset" class="ml-2 rounded-sm border border-slate-300 bg-white px-3 h-10 font-display text-sm font-semibold uppercase text-navy hover:bg-slate-100 cursor-pointer">Reset</button>
+            <div class="flex rounded-sm border border-slate-300 bg-white p-1">
+              <button type="button" id="d-view-2d" class="rounded-sm px-4 py-2 font-display text-sm font-semibold uppercase bg-steel text-white cursor-pointer" aria-pressed="true">2D Editor</button>
+              <button type="button" id="d-view-3d" class="rounded-sm px-4 py-2 font-display text-sm font-semibold uppercase text-navy hover:bg-slate-100 cursor-pointer" aria-pressed="false">3D Preview</button>
+            </div>
+            <div id="d-controls-2d" class="flex items-center gap-3">
+              <p class="hidden md:block text-sm text-slate-500 font-body normal-case tracking-normal">Scroll to zoom &middot; drag to pan</p>
+              <div class="flex items-center gap-2">
+                <button type="button" id="d-zoom-out" aria-label="Zoom out" class="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-300 bg-white text-navy hover:bg-slate-100 cursor-pointer">&minus;</button>
+                <span id="d-zoom-label" class="w-14 text-center font-display font-semibold text-navy">100%</span>
+                <button type="button" id="d-zoom-in" aria-label="Zoom in" class="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-300 bg-white text-navy hover:bg-slate-100 cursor-pointer">+</button>
+                <button type="button" id="d-zoom-reset" class="ml-2 rounded-sm border border-slate-300 bg-white px-3 h-10 font-display text-sm font-semibold uppercase text-navy hover:bg-slate-100 cursor-pointer">Reset</button>
+              </div>
+            </div>
+            <div id="d-controls-3d" class="hidden flex items-center gap-3">
+              <p class="hidden md:block text-sm text-slate-500 font-body normal-case tracking-normal">Drag to rotate &middot; scroll to zoom</p>
+              <button type="button" id="d-3d-reset" class="rounded-sm border border-slate-300 bg-white px-3 h-10 font-display text-sm font-semibold uppercase text-navy hover:bg-slate-100 cursor-pointer">Reset View</button>
             </div>
           </div>
-          <div class="relative w-full overflow-hidden rounded-sm border border-slate-300" style="height: 520px;">
+          <div id="d-canvas-2d-wrap" class="relative w-full overflow-hidden rounded-sm border border-slate-300" style="height: 520px;">
             <canvas id="design-canvas" class="block h-full w-full"></canvas>
           </div>
+          <div id="d-canvas-3d-wrap" class="hidden relative w-full overflow-hidden rounded-sm border border-slate-300" style="height: 520px;"></div>
         </div>
 
       </div>
@@ -202,6 +213,9 @@
     </div>
   </footer>
 
+  <script src="js/vendor/three.min.js" defer></script>
+  <script src="js/vendor/OrbitControls.js" defer></script>
+  <script src="js/design3d.js" defer></script>
   <script src="js/main.js" defer></script>
   <script src="js/design.js" defer></script>
 </body>
