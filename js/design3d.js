@@ -2,6 +2,7 @@
   var scene, camera, renderer, controls, signMesh, canvasTexture, container;
   var faceCanvas, faceCtx;
   var initialized = false;
+  var lastSideTex = null;
 
   function hexToInt(hex) {
     return parseInt(hex.replace('#', '0x'), 16);
@@ -147,11 +148,80 @@
     return texCache3d.grain;
   }
 
+  function drawBrushedLines3d(cctx, w, h, alpha) {
+    cctx.save();
+    for (var i = -h; i < w + h; i += 5) {
+      cctx.strokeStyle = 'rgba(255,255,255,' + (alpha * (0.3 + Math.random() * 0.7)).toFixed(2) + ')';
+      cctx.lineWidth = 1;
+      cctx.beginPath();
+      cctx.moveTo(i, 0);
+      cctx.lineTo(i - h, h);
+      cctx.stroke();
+    }
+    cctx.restore();
+  }
+
+  function drawGrain3d(cctx, w, h, alpha) {
+    cctx.save();
+    var n = Math.floor(w * h * 0.15);
+    for (var i = 0; i < n; i++) {
+      var x = Math.random() * w, y = Math.random() * h;
+      cctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,' + alpha + ')' : 'rgba(0,0,0,' + alpha + ')';
+      cctx.fillRect(x, y, 1, 1);
+    }
+    cctx.restore();
+  }
+
+  function buildSideTexture(state) {
+    var w = 128, h = 256;
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var cctx = c.getContext('2d');
+
+    var base = state.material === 'vinyl' ? '#161616' : state.color;
+
+    var grad = cctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, shade(base, 42));
+    grad.addColorStop(0.14, shade(base, 12));
+    grad.addColorStop(0.5, base);
+    grad.addColorStop(0.86, shade(base, -18));
+    grad.addColorStop(1, shade(base, -42));
+    cctx.fillStyle = grad;
+    cctx.fillRect(0, 0, w, h);
+
+    if (state.material === 'metal' || state.material === 'led') {
+      drawBrushedLines3d(cctx, w, h, 0.45);
+    } else if (state.material === 'vinyl') {
+      drawGrain3d(cctx, w, h, 0.08);
+    }
+
+    var hi = cctx.createLinearGradient(0, 0, 0, h * 0.16);
+    hi.addColorStop(0, 'rgba(255,255,255,0.4)');
+    hi.addColorStop(1, 'rgba(255,255,255,0)');
+    cctx.fillStyle = hi;
+    cctx.fillRect(0, 0, w, h * 0.16);
+
+    var lo = cctx.createLinearGradient(0, h * 0.82, 0, h);
+    lo.addColorStop(0, 'rgba(0,0,0,0)');
+    lo.addColorStop(1, 'rgba(0,0,0,0.4)');
+    cctx.fillStyle = lo;
+    cctx.fillRect(0, h * 0.82, w, h * 0.18);
+
+    var tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+
   function renderFaceTexture(state) {
     var w = faceCanvas.width, h = faceCanvas.height;
     faceCtx.clearRect(0, 0, w, h);
-    faceCtx.fillStyle = '#0a0a0a';
+    var backGrad = faceCtx.createLinearGradient(0, 0, 0, h);
+    backGrad.addColorStop(0, '#1c1c1c');
+    backGrad.addColorStop(0.5, '#0a0a0a');
+    backGrad.addColorStop(1, '#050505');
+    faceCtx.fillStyle = backGrad;
     faceCtx.fillRect(0, 0, w, h);
+    drawBrushedLines3d(faceCtx, w, h, 0.1);
 
     var text = (state.text || 'YOUR SIGN').toUpperCase();
     var fontPx = 140;
@@ -289,27 +359,36 @@
       m.opacity = 1;
     });
 
+    if (lastSideTex) lastSideTex.dispose();
+    var sideTex = buildSideTexture(state);
+    lastSideTex = sideTex;
+    [sideMat, edgeMat, backMat].forEach(function (m) {
+      m.map = sideTex;
+      m.color.setHex(0xffffff);
+      m.needsUpdate = true;
+    });
+
     if (state.material === 'metal') {
       frontMat.metalness = 0.7; frontMat.roughness = 0.3;
       [sideMat, edgeMat, backMat].forEach(function (m) {
-        m.color.setHex(colorInt); m.metalness = 0.75; m.roughness = 0.3;
+        m.metalness = 0.75; m.roughness = 0.3;
       });
     } else if (state.material === 'acrylic') {
       frontMat.metalness = 0.05; frontMat.roughness = 0.15;
       frontMat.transparent = true; frontMat.opacity = 0.94;
       [sideMat, edgeMat, backMat].forEach(function (m) {
-        m.color.setHex(colorInt); m.transparent = true; m.opacity = 0.82; m.roughness = 0.2; m.metalness = 0.05;
+        m.transparent = true; m.opacity = 0.85; m.roughness = 0.2; m.metalness = 0.05;
       });
     } else if (state.material === 'led') {
       frontMat.metalness = 0; frontMat.roughness = 0.4;
       frontMat.emissive.setHex(colorInt); frontMat.emissiveIntensity = 0.85;
       [sideMat, edgeMat, backMat].forEach(function (m) {
-        m.color.setHex(colorInt); m.emissive.setHex(colorInt); m.emissiveIntensity = 0.35; m.metalness = 0; m.roughness = 0.5;
+        m.emissive.setHex(colorInt); m.emissiveIntensity = 0.3; m.metalness = 0; m.roughness = 0.5;
       });
     } else {
       frontMat.metalness = 0; frontMat.roughness = 0.9;
       [sideMat, edgeMat, backMat].forEach(function (m) {
-        m.color.setHex(0x111111); m.metalness = 0; m.roughness = 0.9;
+        m.metalness = 0; m.roughness = 0.9;
       });
     }
 
