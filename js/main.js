@@ -54,4 +54,41 @@ document.addEventListener('DOMContentLoaded', function () {
       try { localStorage.removeItem('signcoDesignSummary'); } catch (e) { /* ignore */ }
     }
   }
+
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var revealTargets = document.querySelectorAll('[data-reveal]');
+  if (revealTargets.length && !prefersReducedMotion && 'IntersectionObserver' in window) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        entry.target.classList.toggle('is-visible', entry.isIntersecting);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    revealTargets.forEach(function (el) { revealObserver.observe(el); });
+  } else {
+    revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  if (!prefersReducedMotion) {
+    document.querySelectorAll('.spark-zoom').forEach(function (container) {
+      var count = 9;
+      for (var i = 0; i < count; i++) {
+        var p = document.createElement('span');
+        p.className = 'spark-particle';
+        var startX = 25 + Math.random() * 55;
+        var startY = 30 + Math.random() * 45;
+        var dx = Math.round(Math.random() * 70 - 25) + 'px';
+        var dy = Math.round(-(45 + Math.random() * 70)) + 'px';
+        var duration = (1.6 + Math.random() * 2.2).toFixed(2) + 's';
+        var delay = (Math.random() * 4).toFixed(2) + 's';
+        p.style.left = startX + '%';
+        p.style.top = startY + '%';
+        p.style.setProperty('--dx', dx);
+        p.style.setProperty('--dy', dy);
+        p.style.animationDuration = duration;
+        p.style.animationDelay = delay;
+        container.appendChild(p);
+      }
+    });
+  }
 });
